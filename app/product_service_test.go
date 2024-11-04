@@ -41,3 +41,28 @@ func TestProductService_Create(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, result, product)
 }
+
+func TestProductService_EnableDisable(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	product := mockapp.NewMockProductInterface(ctrl)
+
+	product.EXPECT().Enable().Return(nil)
+	product.EXPECT().Disable().Return(nil)
+
+	persistence := mockapp.NewMockProductPersistenceInterface(ctrl)
+	persistence.EXPECT().Save(gomock.Any()).Return(product, nil).AnyTimes()
+
+	service := app.ProductService{
+		Persistence: persistence,
+	}
+
+	result, err := service.Enable(product)
+	require.Nil(t, err)
+	require.Equal(t, result, product)
+
+	result, err = service.Disable(product)
+	require.Nil(t, err)
+	require.Equal(t, result, product)
+}
